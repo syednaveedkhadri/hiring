@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Position {
+  id                    String   @id @default(uuid())
+  title                 String
+  department            String?
+  vacancies             Int
+  seniorityLevel        String?
+  jobDescription        String?
+  mandatoryRequirements String?
+  preferredRequirements String?
+  minimumExperience     Float?
+  preferredExperience   Float?
+  salaryMin             Decimal?
+  salaryMax             Decimal?
+  currency              String?  @default("KWD")
+  status                String   @default("OPEN")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  candidates Candidate[]
+}
+
+model Candidate {
+  id                  String   @id @default(uuid())
+  candidateCode       String   @unique
+  fullName            String
+  phone               String?
+  whatsapp            String?
+  email               String?
+  currentCity         String?
+  currentCountry      String?
+  currentCompany      String?
+  currentJobTitle     String?
+  totalExperience     Float?
+  relevantExperience  Float?
+  currentSalary       Decimal?
+  expectedSalary      Decimal?
+  salaryCurrency      String?  @default("INR")
+  noticePeriod        String?
+  joiningAvailability String?
+  status              String   @default("NEW")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  positionId String
+  position   Position @relation(fields: [positionId], references: [id])
+
+  photo          CandidatePhoto?
+  documents      CandidateDocument[]
+  skills         CandidateSkill[]
+  education      CandidateEducation[]
+  certifications CandidateCertification[]
+  languages      CandidateLanguage[]
+  employment     CandidateEmployment[]
+  notes          CandidateNote[]
+
+  @@index([positionId])
+  @@index([fullName])
+  @@index([phone])
+  @@index([status])
+}
+
+model CandidatePhoto {
+  id          String   @id @default(uuid())
+  candidateId String   @unique
+  fileUrl     String
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model CandidateDocument {
+  id           String   @id @default(uuid())
+  candidateId  String
+  documentType String
+  fileName     String
+  fileUrl      String
+  mimeType     String?
+  createdAt    DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateSkill {
+  id              String @id @default(uuid())
+  candidateId     String
+  skill           String
+  yearsExperience Float?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateEducation {
+  id             String  @id @default(uuid())
+  candidateId    String
+  qualification  String
+  institution    String?
+  specialization String?
+  startYear      Int?
+  endYear        Int?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateCertification {
+  id                  String    @id @default(uuid())
+  candidateId         String
+  name                String
+  issuingOrganization String?
+  issueDate           DateTime?
+  expiryDate          DateTime?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateLanguage {
+  id          String  @id @default(uuid())
+  candidateId String
+  language    String
+  proficiency String?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateEmployment {
+  id               String    @id @default(uuid())
+  candidateId      String
+  company          String
+  jobTitle         String
+  startDate        DateTime?
+  endDate          DateTime?
+  currentlyWorking Boolean   @default(false)
+  description      String?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateNote {
+  id          String   @id @default(uuid())
+  candidateId String
+  note        String
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateSequence {
+  id           String   @id @default("singleton")
+  lastNumber   Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
