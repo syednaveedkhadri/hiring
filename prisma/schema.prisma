@@ -24,7 +24,8 @@ model Position {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  candidates Candidate[]
+  candidates    Candidate[]
+  aiEvaluations AIEvaluation[]
 }
 
 model Candidate {
@@ -54,12 +55,16 @@ model Candidate {
 
   photo          CandidatePhoto?
   documents      CandidateDocument[]
+  cv             CandidateCV?
   skills         CandidateSkill[]
   education      CandidateEducation[]
   certifications CandidateCertification[]
   languages      CandidateLanguage[]
   employment     CandidateEmployment[]
   notes          CandidateNote[]
+  interviews     Interview[]
+  aiEvaluations  AIEvaluation[]
+  rankings       CandidateRanking[]
 
   @@index([positionId])
   @@index([fullName])
@@ -85,7 +90,8 @@ model CandidateDocument {
   mimeType     String?
   createdAt    DateTime @default(now())
 
-  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidate Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  cv        CandidateCV?
 
   @@index([candidateId])
 }
@@ -166,8 +172,128 @@ model CandidateNote {
   @@index([candidateId])
 }
 
+model CandidateCV {
+  id               String    @id @default(uuid())
+  candidateId      String    @unique
+  documentId       String    @unique
+  extractedText    String?   @db.Text
+  parsedData       Json?
+  extractionStatus String    @default("PENDING")
+  extractionError  String?
+  extractedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  candidate Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  document  CandidateDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
 model CandidateSequence {
-  id           String   @id @default("singleton")
-  lastNumber   Int      @default(0)
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default("singleton")
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
+}
+
+model Interview {
+  id                String   @id @default(uuid())
+  candidateId       String
+  interviewerId     String?
+  interviewType     String   @default("TECHNICAL")
+  interviewDate     DateTime @default(now())
+  interviewLocation String?
+  overallNotes      String?  @db.Text
+  strengths         String?  @db.Text
+  concerns          String?  @db.Text
+  status            String   @default("COMPLETED")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  candidate Candidate           @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  scores    InterviewScore[]
+  questions InterviewQuestion[]
+
+  @@index([candidateId])
+  @@index([interviewDate])
+}
+
+model InterviewScore {
+  id          String  @id @default(uuid())
+  interviewId String
+  category    String
+  score       Int
+  notes       String? @db.Text
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
+}
+
+model InterviewQuestion {
+  id          String  @id @default(uuid())
+  interviewId String
+  question    String  @db.Text
+  performance String? // POOR, FAIR, GOOD, VERY_GOOD, EXCELLENT
+  answer      String? @db.Text
+  notes       String? @db.Text
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
+}
+
+model AIEvaluation {
+  id                  String   @id @default(uuid())
+  candidateId         String
+  positionId          String
+  overallScore        Float
+  confidence          String
+  recommendation      String
+  jobRequirementScore Float?
+  experienceScore     Float?
+  skillsScore         Float?
+  technicalScore      Float?
+  interviewScore      Float?
+  practicalScore      Float?
+  salaryFitScore      Float?
+  availabilityScore   Float?
+  educationScore      Float?
+  certificationScore  Float?
+  strengths           Json
+  weaknesses          Json
+  requirementGaps     Json
+  missingInformation  Json
+  evidence            Json?
+  summary             String   @db.Text
+  model               String?
+  promptVersion       String?
+  positionSnapshot    Json
+  candidateSnapshot   Json
+  createdAt           DateTime @default(now())
+
+  candidate Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  position  Position           @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  rankings  CandidateRanking[]
+
+  @@index([candidateId])
+  @@index([positionId])
+  @@index([overallScore])
+  @@index([createdAt])
+}
+
+model CandidateRanking {
+  id           String   @id @default(uuid())
+  candidateId  String
+  positionId   String
+  evaluationId String
+  rank         Int
+  totalCount   Int
+  recordedAt   DateTime @default(now())
+
+  candidate  Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  evaluation AIEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([positionId])
+  @@index([evaluationId])
+  @@index([recordedAt])
 }
