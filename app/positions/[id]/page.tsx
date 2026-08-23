@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CandidateStatusBadge } from "@/components/candidates/candidate-status-badge";
 import prisma from "@/lib/db/prisma";
 import { getRankedCandidates } from "@/lib/ai-evaluation/ranking";
-import { ArrowLeft, Briefcase, Users, DollarSign, Calendar, Trophy, Award } from "lucide-react";
+import { ArrowLeft, Briefcase, Users, DollarSign, Calendar, Trophy, Award, Edit } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -81,9 +81,17 @@ export default async function PositionDetailPage({ params }: PageProps) {
                 <p className="text-lg text-muted-foreground mt-2">{position.department}</p>
               )}
             </div>
-            <Badge variant={position.status === "OPEN" ? "default" : "secondary"} className="text-sm">
-              {position.status}
-            </Badge>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/positions/${position.id}/edit-requirements`}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Requirements
+                </Link>
+              </Button>
+              <Badge variant={position.status === "OPEN" ? "default" : "secondary"} className="text-sm">
+                {position.status}
+              </Badge>
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -250,6 +258,127 @@ export default async function PositionDetailPage({ params }: PageProps) {
               )}
             </CardContent>
           </Card>
+
+          {/* Detailed Hiring Requirements */}
+          {(position.requiredSkills || position.preferredSkills || position.educationRequirements ||
+            position.certificationRequirements || position.joiningAvailabilityPreference ||
+            position.specialRequirements || position.whatMattersMost || position.majorConcerns ||
+            position.aiEvaluationInstructions) && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Detailed Hiring Requirements</CardTitle>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/positions/${position.id}/edit-requirements`}>
+                      <Edit className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Skills */}
+                {(position.requiredSkills || position.preferredSkills) && (
+                  <div>
+                    <h3 className="font-semibold mb-3">Skills Requirements</h3>
+                    <div className="space-y-3">
+                      {position.requiredSkills && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Required Skills</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.requiredSkills}</p>
+                        </div>
+                      )}
+                      {position.preferredSkills && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Preferred Skills</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.preferredSkills}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {(position.requiredSkills || position.preferredSkills) &&
+                 (position.educationRequirements || position.certificationRequirements) && <Separator />}
+
+                {/* Education & Certifications */}
+                {(position.educationRequirements || position.certificationRequirements) && (
+                  <div>
+                    <h3 className="font-semibold mb-3">Education & Certifications</h3>
+                    <div className="space-y-3">
+                      {position.educationRequirements && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Education Requirements</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.educationRequirements}</p>
+                        </div>
+                      )}
+                      {position.certificationRequirements && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Certification Requirements</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.certificationRequirements}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {(position.educationRequirements || position.certificationRequirements) &&
+                 (position.joiningAvailabilityPreference || position.specialRequirements) && <Separator />}
+
+                {/* Availability & Special Requirements */}
+                {(position.joiningAvailabilityPreference || position.specialRequirements) && (
+                  <div>
+                    <h3 className="font-semibold mb-3">Availability & Special Requirements</h3>
+                    <div className="space-y-3">
+                      {position.joiningAvailabilityPreference && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Joining/Availability Preference</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.joiningAvailabilityPreference}</p>
+                        </div>
+                      )}
+                      {position.specialRequirements && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Special Requirements</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.specialRequirements}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {(position.joiningAvailabilityPreference || position.specialRequirements) &&
+                 (position.whatMattersMost || position.majorConcerns || position.aiEvaluationInstructions) && <Separator />}
+
+                {/* AI Evaluation Guidance */}
+                {(position.whatMattersMost || position.majorConcerns || position.aiEvaluationInstructions) && (
+                  <div>
+                    <h3 className="font-semibold mb-3">AI Evaluation Guidance</h3>
+                    <div className="space-y-3">
+                      {position.whatMattersMost && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">What Matters Most For This Hire</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.whatMattersMost}</p>
+                        </div>
+                      )}
+                      {position.majorConcerns && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Major Concerns / Disqualifying Gaps</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{position.majorConcerns}</p>
+                        </div>
+                      )}
+                      {position.aiEvaluationInstructions && (
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Additional AI Evaluation Instructions</label>
+                          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed bg-muted/50 p-3 rounded-md border border-border">
+                            {position.aiEvaluationInstructions}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Candidates Section */}
           <Card>

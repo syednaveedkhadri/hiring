@@ -12,6 +12,15 @@ export type CandidateEvaluationInput = {
     salaryMin: string | null;
     salaryMax: string | null;
     currency: string | null;
+    requiredSkills: string | null;
+    preferredSkills: string | null;
+    educationRequirements: string | null;
+    certificationRequirements: string | null;
+    joiningAvailabilityPreference: string | null;
+    specialRequirements: string | null;
+    whatMattersMost: string | null;
+    majorConcerns: string | null;
+    aiEvaluationInstructions: string | null;
   };
   candidate: {
     fullName: string;
@@ -41,14 +50,10 @@ export type CandidateEvaluationInput = {
   certifications: Array<{
     name: string;
     issuingOrganization: string | null;
-    issueDate: string | null;
-    expiryDate: string | null;
   }>;
   employment: Array<{
     company: string;
     jobTitle: string;
-    startDate: string | null;
-    endDate: string | null;
     currentlyWorking: boolean;
     description: string | null;
   }>;
@@ -62,8 +67,6 @@ export type CandidateEvaluationInput = {
   } | null;
   interviews: Array<{
     interviewType: string;
-    interviewDate: string;
-    interviewerId: string | null;
     overallNotes: string | null;
     strengths: string | null;
     concerns: string | null;
@@ -138,6 +141,15 @@ export async function buildCandidateEvaluationInput(
       salaryMin: candidate.position.salaryMin?.toString() || null,
       salaryMax: candidate.position.salaryMax?.toString() || null,
       currency: candidate.position.currency,
+      requiredSkills: candidate.position.requiredSkills,
+      preferredSkills: candidate.position.preferredSkills,
+      educationRequirements: candidate.position.educationRequirements,
+      certificationRequirements: candidate.position.certificationRequirements,
+      joiningAvailabilityPreference: candidate.position.joiningAvailabilityPreference,
+      specialRequirements: candidate.position.specialRequirements,
+      whatMattersMost: candidate.position.whatMattersMost,
+      majorConcerns: candidate.position.majorConcerns,
+      aiEvaluationInstructions: candidate.position.aiEvaluationInstructions,
     },
     candidate: {
       fullName: candidate.fullName,
@@ -171,14 +183,10 @@ export async function buildCandidateEvaluationInput(
     certifications: candidate.certifications.map((cert) => ({
       name: cert.name,
       issuingOrganization: cert.issuingOrganization,
-      issueDate: cert.issueDate?.toISOString() || null,
-      expiryDate: cert.expiryDate?.toISOString() || null,
     })),
     employment: candidate.employment.map((emp) => ({
       company: emp.company,
       jobTitle: emp.jobTitle,
-      startDate: emp.startDate?.toISOString() || null,
-      endDate: emp.endDate?.toISOString() || null,
       currentlyWorking: emp.currentlyWorking,
       description: emp.description,
     })),
@@ -194,8 +202,6 @@ export async function buildCandidateEvaluationInput(
       : null,
     interviews: candidate.interviews.map((interview) => ({
       interviewType: interview.interviewType,
-      interviewDate: interview.interviewDate.toISOString(),
-      interviewerId: interview.interviewerId,
       overallNotes: interview.overallNotes,
       strengths: interview.strengths,
       concerns: interview.concerns,

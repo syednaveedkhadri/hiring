@@ -18,6 +18,9 @@ export type InterviewFormData = {
   }>;
   questions: Array<{
     question: string;
+    questionType?: string;
+    competency?: string;
+    expectedAnswerGuidance?: string;
     performance?: string;
     answer?: string;
     notes?: string;
@@ -78,6 +81,9 @@ export async function createInterview(
             .filter((q) => q.question.trim().length > 0)
             .map((question) => ({
               question: question.question,
+              questionType: question.questionType || null,
+              competency: question.competency || null,
+              expectedAnswerGuidance: question.expectedAnswerGuidance || null,
               performance: question.performance || null,
               answer: question.answer || null,
               notes: question.notes || null,
@@ -174,6 +180,9 @@ export async function updateInterview(
               .filter((q) => q.question.trim().length > 0)
               .map((question) => ({
                 question: question.question,
+                questionType: question.questionType || null,
+                competency: question.competency || null,
+                expectedAnswerGuidance: question.expectedAnswerGuidance || null,
                 performance: question.performance || null,
                 answer: question.answer || null,
                 notes: question.notes || null,

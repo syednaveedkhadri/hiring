@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CandidateStatusBadge } from "@/components/candidates/candidate-status-badge";
+import { QuickStatusControl } from "@/components/candidates/quick-status-control";
 import prisma from "@/lib/db/prisma";
 import { Plus, MapPin, Phone } from "lucide-react";
 
@@ -218,7 +218,10 @@ export default async function CandidatesPage({ searchParams }: { searchParams: S
                             </div>
                           )}
                         </div>
-                        <CandidateStatusBadge status={candidate.status} />
+                        <QuickStatusControl
+                          candidateId={candidate.id}
+                          currentStatus={candidate.status}
+                        />
                       </div>
                     </div>
                   </div>

@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Plus, Trash2, Save } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ArrowLeft, Plus, Trash2, Save, Sparkles, RefreshCw, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { createInterview, updateInterview } from "../actions";
 
@@ -51,6 +56,9 @@ type ExistingInterview = {
   questions: Array<{
     id: string;
     question: string;
+    questionType: string | null;
+    competency: string | null;
+    expectedAnswerGuidance: string | null;
     performance: string | null;
     answer: string | null;
     notes: string | null;
@@ -99,6 +107,9 @@ type ScoreEntry = {
 
 type QuestionEntry = {
   question: string;
+  questionType: string;
+  competency: string;
+  expectedAnswerGuidance: string;
   performance: string;
   answer: string;
   notes: string;
@@ -108,6 +119,7 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
 
   // Form state
   const [interviewType, setInterviewType] = useState(
@@ -154,12 +166,15 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
     if (existingInterview && existingInterview.questions.length > 0) {
       return existingInterview.questions.map((q) => ({
         question: q.question,
+        questionType: q.questionType || "",
+        competency: q.competency || "",
+        expectedAnswerGuidance: q.expectedAnswerGuidance || "",
         performance: q.performance || "",
         answer: q.answer || "",
         notes: q.notes || "",
       }));
     }
-    return [{ question: "", performance: "", answer: "", notes: "" }];
+    return [{ question: "", questionType: "", competency: "", expectedAnswerGuidance: "", performance: "", answer: "", notes: "" }];
   });
 
   const handleScoreChange = (index: number, field: keyof ScoreEntry, value: string | number) => {
@@ -176,7 +191,84 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
   };
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: "", performance: "", answer: "", notes: "" }]);
+    setQuestions([...questions, { question: "", questionType: "", competency: "", expectedAnswerGuidance: "", performance: "", answer: "", notes: "" }]);
+  };
+
+  const generateAllQuestions = async () => {
+    setError(null);
+    setIsGeneratingQuestions(true);
+
+    try {
+      const response = await fetch(`/api/candidates/${candidate.id}/questions`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate questions");
+      }
+
+      const data = await response.json();
+
+      // Replace all questions with generated ones
+      setQuestions(
+        data.questions.map((q: {
+          type: string;
+          question: string;
+          competency: string;
+          expectedAnswerGuidance: string;
+        }) => ({
+          question: q.question,
+          questionType: q.type,
+          competency: q.competency,
+          expectedAnswerGuidance: q.expectedAnswerGuidance,
+          performance: "",
+          answer: "",
+          notes: "",
+        }))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate questions");
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
+  };
+
+  const regenerateQuestion = async (index: number) => {
+    setError(null);
+    setIsGeneratingQuestions(true);
+
+    try {
+      const response = await fetch(`/api/candidates/${candidate.id}/questions`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to generate questions");
+      }
+
+      const data = await response.json();
+
+      // Replace only the specified question with the first generated one
+      if (data.questions && data.questions.length > 0) {
+        const newQuestions = [...questions];
+        newQuestions[index] = {
+          question: data.questions[0].question,
+          questionType: data.questions[0].type,
+          competency: data.questions[0].competency,
+          expectedAnswerGuidance: data.questions[0].expectedAnswerGuidance,
+          performance: "",
+          answer: "",
+          notes: "",
+        };
+        setQuestions(newQuestions);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to regenerate question");
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
   };
 
   const removeQuestion = (index: number) => {
@@ -226,6 +318,9 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
         .filter((q) => q.question.trim().length > 0)
         .map((q) => ({
           question: q.question.trim(),
+          questionType: q.questionType || undefined,
+          competency: q.competency.trim() || undefined,
+          expectedAnswerGuidance: q.expectedAnswerGuidance.trim() || undefined,
           performance: q.performance || undefined,
           answer: q.answer.trim() || undefined,
           notes: q.notes.trim() || undefined,
@@ -414,10 +509,22 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Interview Questions</h3>
-                  <Button type="button" variant="outline" size="sm" onClick={addQuestion}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Question
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="sm"
+                      onClick={generateAllQuestions}
+                      disabled={isGeneratingQuestions}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      {isGeneratingQuestions ? "Generating..." : "Generate AI Questions"}
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={addQuestion}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Manual Question
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -426,19 +533,40 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
                       <CardContent className="pt-4">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between">
-                            <Label className="text-sm font-semibold">
-                              Question {index + 1}
-                            </Label>
-                            {questions.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeQuestion(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <Label className="text-sm font-semibold">
+                                Question {index + 1}
+                              </Label>
+                              {question.questionType && (
+                                <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+                                  {question.questionType}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-1">
+                              {question.question && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => regenerateQuestion(index)}
+                                  disabled={isGeneratingQuestions}
+                                  title="Regenerate this question"
+                                >
+                                  <RefreshCw className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {questions.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeQuestion(index)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
 
                           <div>
@@ -452,6 +580,33 @@ export function InterviewForm({ candidate, existingInterview }: InterviewFormPro
                               rows={2}
                             />
                           </div>
+
+                          {/* Interviewer Guidance - Collapsible */}
+                          {question.expectedAnswerGuidance && (
+                            <Collapsible>
+                              <CollapsibleTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full justify-between"
+                                >
+                                  <span className="text-xs font-medium">Interviewer Guidance</span>
+                                  <ChevronDown className="h-4 w-4" />
+                                </Button>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="mt-2">
+                                <div className="p-3 bg-muted/50 rounded-md text-sm">
+                                  <p className="text-xs text-muted-foreground mb-1">
+                                    {question.competency && (
+                                      <strong>Testing: {question.competency}</strong>
+                                    )}
+                                  </p>
+                                  <p className="text-sm">{question.expectedAnswerGuidance}</p>
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          )}
 
                           <div>
                             <Label className="text-sm">Candidate Performance</Label>

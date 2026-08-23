@@ -290,3 +290,69 @@ export async function createCandidate(formData: FormData) {
     throw new Error("Failed to create candidate");
   }
 }
+
+/**
+ * Valid candidate statuses for manual workflow
+ */
+const VALID_STATUSES = [
+  "NEW",
+  "SCREENING",
+  "INTERVIEWED",
+  "SHORTLISTED",
+  "SELECTED",
+  "REJECTED",
+  "ON_HOLD",
+] as const;
+
+type CandidateStatus = typeof VALID_STATUSES[number];
+
+/**
+ * Update candidate status (manual workflow only - AI never changes this)
+ */
+export async function updateCandidateStatus(
+  candidateId: string,
+  newStatus: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validate status
+    if (!VALID_STATUSES.includes(newStatus as CandidateStatus)) {
+      return {
+        success: false,
+        error: `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`,
+      };
+    }
+
+    // Validate candidate exists
+    const candidate = await prisma.candidate.findUnique({
+      where: { id: candidateId },
+      select: { id: true, positionId: true },
+    });
+
+    if (!candidate) {
+      return {
+        success: false,
+        error: "Candidate not found",
+      };
+    }
+
+    // Update status
+    await prisma.candidate.update({
+      where: { id: candidateId },
+      data: { status: newStatus },
+    });
+
+    // Revalidate relevant pages
+    revalidatePath("/");
+    revalidatePath("/candidates");
+    revalidatePath(`/candidates/${candidateId}`);
+    revalidatePath(`/positions/${candidate.positionId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating candidate status:", error);
+    return {
+      success: false,
+      error: "Failed to update candidate status",
+    };
+  }
+}

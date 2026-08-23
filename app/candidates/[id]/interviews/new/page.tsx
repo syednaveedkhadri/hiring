@@ -82,7 +82,16 @@ export default async function NewInterviewPage({ params, searchParams }: PagePro
               strengths: existingInterview.strengths,
               concerns: existingInterview.concerns,
               scores: existingInterview.scores,
-              questions: existingInterview.questions,
+              questions: existingInterview.questions.map((q) => ({
+                id: q.id,
+                question: q.question,
+                questionType: q.questionType,
+                competency: q.competency,
+                expectedAnswerGuidance: q.expectedAnswerGuidance,
+                performance: q.performance,
+                answer: q.answer,
+                notes: q.notes,
+              })),
             }
           : null
       }

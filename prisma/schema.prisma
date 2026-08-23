@@ -7,22 +7,31 @@ datasource db {
 }
 
 model Position {
-  id                    String   @id @default(uuid())
-  title                 String
-  department            String?
-  vacancies             Int
-  seniorityLevel        String?
-  jobDescription        String?
-  mandatoryRequirements String?
-  preferredRequirements String?
-  minimumExperience     Float?
-  preferredExperience   Float?
-  salaryMin             Decimal?
-  salaryMax             Decimal?
-  currency              String?  @default("KWD")
-  status                String   @default("OPEN")
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                            String   @id @default(uuid())
+  title                         String
+  department                    String?
+  vacancies                     Int
+  seniorityLevel                String?
+  jobDescription                String?  @db.Text
+  mandatoryRequirements         String?  @db.Text
+  preferredRequirements         String?  @db.Text
+  minimumExperience             Float?
+  preferredExperience           Float?
+  salaryMin                     Decimal?
+  salaryMax                     Decimal?
+  currency                      String?  @default("KWD")
+  requiredSkills                String?  @db.Text
+  preferredSkills               String?  @db.Text
+  educationRequirements         String?  @db.Text
+  certificationRequirements     String?  @db.Text
+  joiningAvailabilityPreference String?  @db.Text
+  specialRequirements           String?  @db.Text
+  whatMattersMost               String?  @db.Text
+  majorConcerns                 String?  @db.Text
+  aiEvaluationInstructions      String?  @db.Text
+  status                        String   @default("OPEN")
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
 
   candidates    Candidate[]
   aiEvaluations AIEvaluation[]
@@ -229,12 +238,15 @@ model InterviewScore {
 }
 
 model InterviewQuestion {
-  id          String  @id @default(uuid())
-  interviewId String
-  question    String  @db.Text
-  performance String? // POOR, FAIR, GOOD, VERY_GOOD, EXCELLENT
-  answer      String? @db.Text
-  notes       String? @db.Text
+  id                     String  @id @default(uuid())
+  interviewId            String
+  question               String  @db.Text
+  questionType           String? // TECHNICAL, TRICKY, PRACTICAL
+  competency             String? @db.Text
+  expectedAnswerGuidance String? @db.Text
+  performance            String? // POOR, FAIR, GOOD, VERY_GOOD, EXCELLENT
+  answer                 String? @db.Text
+  notes                  String? @db.Text
 
   interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
 

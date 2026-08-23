@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CandidateStatusBadge } from "@/components/candidates/candidate-status-badge";
+import { StatusChangeControl } from "@/components/candidates/status-change-control";
 import { CVSection } from "@/components/candidates/cv-section";
 import { InterviewsSection } from "@/components/candidates/interviews-section";
 import { AIEvaluationSection } from "@/components/candidates/ai-evaluation-section";
@@ -387,10 +388,11 @@ export default async function CandidateProfilePage({ params }: PageProps) {
                   </div>
                 )}
                 <div>
-                  <div className="text-xs text-muted-foreground">Status</div>
-                  <div className="mt-1">
-                    <CandidateStatusBadge status={candidate.status} />
-                  </div>
+                  <div className="text-xs text-muted-foreground mb-2">Status</div>
+                  <StatusChangeControl
+                    candidateId={candidate.id}
+                    currentStatus={candidate.status}
+                  />
                 </div>
                 <div>
                   <div className="text-xs text-muted-foreground">Registered On</div>
