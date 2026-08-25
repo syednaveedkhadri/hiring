@@ -97,17 +97,20 @@ export function AIEvaluationSection({ candidateId, evaluation }: AIEvaluationSec
   const latestRanking = evaluation?.rankings?.[0];
 
   return (
-    <Card>
+    <Card className="bg-gradient-to-br from-card via-card to-indigo-50/20 dark:to-indigo-950/10 border-indigo-200/30 dark:border-indigo-800/20 shadow-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5" />
-            AI Evaluation
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-bold">AI Evaluation</span>
           </CardTitle>
           <Button
             size="sm"
             onClick={handleEvaluate}
             disabled={isPending}
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30"
           >
             <Sparkles className="h-4 w-4 mr-2" />
             {evaluation ? "Re-evaluate" : "Evaluate with AI"}
@@ -131,35 +134,67 @@ export function AIEvaluationSection({ candidateId, evaluation }: AIEvaluationSec
           <div className="space-y-6">
             {/* Score and Rank */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-xs text-muted-foreground mb-1">AI Score</div>
-                <div className={`text-4xl font-bold ${getScoreColor(evaluation.overallScore)}`}>
+              <div className="text-center p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl border border-indigo-200/50 dark:border-indigo-800/30 shadow-lg">
+                <div className="text-xs text-indigo-700 dark:text-indigo-300 font-semibold mb-2 uppercase tracking-wider">AI Score</div>
+                <div className={`text-5xl font-bold ${getScoreColor(evaluation.overallScore)}`}>
                   {evaluation.overallScore}
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">out of 100</div>
+                <div className="text-xs text-indigo-600/70 dark:text-indigo-400/70 mt-2">out of 100</div>
               </div>
 
               {latestRanking && (
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-xs text-muted-foreground mb-1">Rank</div>
-                  <div className="text-4xl font-bold">
+                <div className={`text-center p-6 rounded-xl border shadow-lg ${
+                  latestRanking.rank === 1
+                    ? "bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border-amber-300/50 dark:border-amber-700/30"
+                    : latestRanking.rank === 2
+                    ? "bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 border-slate-300/50 dark:border-slate-700/30"
+                    : latestRanking.rank === 3
+                    ? "bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 border-orange-300/50 dark:border-orange-700/30"
+                    : "bg-gradient-to-br from-muted to-muted/50 border-border/50"
+                }`}>
+                  <div className={`text-xs font-semibold mb-2 uppercase tracking-wider ${
+                    latestRanking.rank === 1
+                      ? "text-amber-700 dark:text-amber-300"
+                      : latestRanking.rank === 2
+                      ? "text-slate-700 dark:text-slate-300"
+                      : latestRanking.rank === 3
+                      ? "text-orange-700 dark:text-orange-300"
+                      : "text-muted-foreground"
+                  }`}>Ranking</div>
+                  <div className={`text-5xl font-bold ${
+                    latestRanking.rank === 1
+                      ? "text-amber-600 dark:text-amber-400"
+                      : latestRanking.rank === 2
+                      ? "text-slate-600 dark:text-slate-400"
+                      : latestRanking.rank === 3
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-foreground"
+                  }`}>
                     #{latestRanking.rank}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className={`text-xs mt-2 ${
+                    latestRanking.rank <= 3
+                      ? latestRanking.rank === 1
+                        ? "text-amber-600/70 dark:text-amber-400/70"
+                        : latestRanking.rank === 2
+                        ? "text-slate-600/70 dark:text-slate-400/70"
+                        : "text-orange-600/70 dark:text-orange-400/70"
+                      : "text-muted-foreground"
+                  }`}>
                     of {latestRanking.totalCount} evaluated
                   </div>
                 </div>
               )}
 
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-xs text-muted-foreground mb-1">Recommendation</div>
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl border border-purple-200/50 dark:border-purple-800/30 shadow-lg">
+                <div className="text-xs text-purple-700 dark:text-purple-300 font-semibold mb-2 uppercase tracking-wider">Recommendation</div>
                 <Badge
                   variant={RECOMMENDATION_CONFIG[evaluation.recommendation]?.variant || "outline"}
-                  className="mt-2"
+                  className="mt-2 text-xs px-3 py-1"
                 >
                   {RECOMMENDATION_CONFIG[evaluation.recommendation]?.label || evaluation.recommendation}
                 </Badge>
-                <div className="mt-2">
+                <div className="mt-3">
                   <Badge variant={CONFIDENCE_CONFIG[evaluation.confidence]?.variant || "outline"} className="text-xs">
                     {CONFIDENCE_CONFIG[evaluation.confidence]?.label || evaluation.confidence}
                   </Badge>

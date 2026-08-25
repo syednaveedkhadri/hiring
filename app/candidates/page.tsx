@@ -84,144 +84,160 @@ export default async function CandidatesPage({ searchParams }: { searchParams: S
   const positions = await getPositions();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
-              <p className="text-muted-foreground mt-2">
-                Manage and review recruitment candidates
-              </p>
-            </div>
-            <Button asChild>
-              <Link href="/candidates/new">
-                <Plus className="h-4 w-4" />
-                Add Candidate
-              </Link>
-            </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">
+              Talent Workspace
+            </h1>
+            <p className="text-slate-600 text-lg">
+              Manage and review your candidate pipeline
+            </p>
           </div>
+          <Button
+            asChild
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/25 h-11 px-6"
+          >
+            <Link href="/candidates/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Candidate
+            </Link>
+          </Button>
         </div>
 
         {/* Filters */}
-        <div className="mb-6">
-          <form method="GET" className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                name="search"
-                defaultValue={params.search}
-                placeholder="Search by name, code, phone, or email..."
-                className="h-10 w-full rounded-lg border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              />
-            </div>
-            <div>
-              <select
-                name="position"
-                defaultValue={params.position}
-                className="h-10 rounded-lg border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        <Card className="bg-white/80 backdrop-blur-sm border-slate-200 shadow-lg shadow-slate-900/5">
+          <div className="p-6">
+            <form method="GET" className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  name="search"
+                  defaultValue={params.search}
+                  placeholder="Search by name, code, phone, or email..."
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                />
+              </div>
+              <div>
+                <select
+                  name="position"
+                  defaultValue={params.position}
+                  className="h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                >
+                  <option value="">All Positions</option>
+                  {positions.map((pos) => (
+                    <option key={pos.id} value={pos.id}>
+                      {pos.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <select
+                  name="status"
+                  defaultValue={params.status}
+                  className="h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="NEW">New</option>
+                  <option value="SCREENING">Screening</option>
+                  <option value="INTERVIEWED">Interviewed</option>
+                  <option value="SHORTLISTED">Shortlisted</option>
+                  <option value="SELECTED">Selected</option>
+                  <option value="REJECTED">Rejected</option>
+                  <option value="ON_HOLD">On Hold</option>
+                </select>
+              </div>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white h-11 px-6"
               >
-                <option value="">All Positions</option>
-                {positions.map((pos) => (
-                  <option key={pos.id} value={pos.id}>
-                    {pos.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <select
-                name="status"
-                defaultValue={params.status}
-                className="h-10 rounded-lg border border-input bg-background px-4 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <option value="">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="SCREENING">Screening</option>
-                <option value="INTERVIEWED">Interviewed</option>
-                <option value="SHORTLISTED">Shortlisted</option>
-                <option value="SELECTED">Selected</option>
-                <option value="REJECTED">Rejected</option>
-                <option value="ON_HOLD">On Hold</option>
-              </select>
-            </div>
-            <Button type="submit">Filter</Button>
-          </form>
-        </div>
+                Filter
+              </Button>
+            </form>
+          </div>
+        </Card>
 
         {/* Candidates List */}
         {candidates.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <p className="text-muted-foreground text-lg">No candidates found</p>
-              <p className="text-muted-foreground text-sm mt-2">
-                Click &quot;Add Candidate&quot; to register your first candidate
-              </p>
+          <Card className="bg-white/80 backdrop-blur-sm border-slate-200 shadow-lg shadow-slate-900/5">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <p className="text-slate-600 text-lg font-medium">No candidates found</p>
+                <p className="text-slate-500 text-sm mt-2">
+                  Click &quot;Add Candidate&quot; to register your first candidate
+                </p>
+              </div>
             </div>
-          </div>
+          </Card>
         ) : (
           <div className="space-y-3">
             {candidates.map((candidate) => (
-              <Link key={candidate.id} href={`/candidates/${candidate.id}`} className="block">
-                <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex items-center gap-4">
-                    {/* Photo */}
-                    <Avatar size="lg">
-                      {candidate.photo?.fileUrl ? (
-                        <AvatarImage src={candidate.photo.fileUrl} alt={candidate.fullName} />
-                      ) : null}
-                      <AvatarFallback>
-                        {candidate.fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+              <Link key={candidate.id} href={`/candidates/${candidate.id}`} className="block group">
+                <Card className="bg-white/80 backdrop-blur-sm border-slate-200 shadow-md shadow-slate-900/5 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 hover:border-indigo-300">
+                  <div className="p-5">
+                    <div className="flex items-center gap-5">
+                      {/* Photo */}
+                      <Avatar size="lg">
+                        {candidate.photo?.fileUrl ? (
+                          <AvatarImage src={candidate.photo.fileUrl} alt={candidate.fullName} />
+                        ) : null}
+                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-semibold">
+                          {candidate.fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    {/* Info */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
-                      <div className="md:col-span-2">
-                        <div className="font-medium">{candidate.fullName}</div>
-                        <div className="text-sm text-muted-foreground">{candidate.candidateCode}</div>
-                      </div>
-
-                      <div>
-                        <div className="text-sm font-medium">{candidate.position.title}</div>
-                        {candidate.currentJobTitle && (
-                          <div className="text-xs text-muted-foreground">{candidate.currentJobTitle}</div>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        {candidate.totalExperience !== null && (
-                          <div className="text-sm">
-                            <span className="text-muted-foreground">Exp:</span> {candidate.totalExperience}y
+                      {/* Info */}
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div className="md:col-span-2">
+                          <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                            {candidate.fullName}
                           </div>
-                        )}
-                        {candidate.expectedSalary !== null && (
-                          <div className="text-sm">
-                            <span className="text-muted-foreground">Salary:</span> {candidate.salaryCurrency} {Number(candidate.expectedSalary).toLocaleString()}
-                          </div>
-                        )}
-                      </div>
+                          <div className="text-sm text-slate-500 font-mono">{candidate.candidateCode}</div>
+                        </div>
 
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                          {candidate.currentCity && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {candidate.currentCity}
+                        <div>
+                          <div className="text-sm font-medium text-slate-900">{candidate.position.title}</div>
+                          {candidate.currentJobTitle && (
+                            <div className="text-xs text-slate-500">{candidate.currentJobTitle}</div>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          {candidate.totalExperience !== null && (
+                            <div className="text-sm text-slate-700">
+                              <span className="text-slate-500">Exp:</span> {candidate.totalExperience}y
                             </div>
                           )}
-                          {candidate.phone && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              {candidate.phone}
+                          {candidate.expectedSalary !== null && (
+                            <div className="text-sm text-slate-700">
+                              <span className="text-slate-500">Salary:</span> {candidate.salaryCurrency} {Number(candidate.expectedSalary).toLocaleString()}
                             </div>
                           )}
                         </div>
-                        <QuickStatusControl
-                          candidateId={candidate.id}
-                          currentStatus={candidate.status}
-                        />
+
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex flex-col gap-1 text-xs text-slate-500">
+                            {candidate.currentCity && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {candidate.currentCity}
+                              </div>
+                            )}
+                            {candidate.phone && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                {candidate.phone}
+                              </div>
+                            )}
+                          </div>
+                          <QuickStatusControl
+                            candidateId={candidate.id}
+                            currentStatus={candidate.status}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>

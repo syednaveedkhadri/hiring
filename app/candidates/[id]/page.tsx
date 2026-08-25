@@ -8,6 +8,7 @@ import { StatusChangeControl } from "@/components/candidates/status-change-contr
 import { CVSection } from "@/components/candidates/cv-section";
 import { InterviewsSection } from "@/components/candidates/interviews-section";
 import { AIEvaluationSection } from "@/components/candidates/ai-evaluation-section";
+import { ExternalAIReviewDialog } from "@/components/candidates/external-ai-review-dialog";
 import { StructuredCVData } from "@/lib/cv/schemas";
 import prisma from "@/lib/db/prisma";
 import {
@@ -21,7 +22,8 @@ import {
   GraduationCap,
   Languages,
   Building2,
-  FileText
+  FileText,
+  Download
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -92,38 +94,55 @@ export default async function CandidateProfilePage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Back Button */}
-        <div className="mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+      <div className="container mx-auto px-6 py-8 max-w-6xl">
+        {/* Header Actions */}
+        <div className="mb-6 flex items-center justify-between">
           <Button variant="ghost" asChild>
             <Link href="/candidates">
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Candidates
             </Link>
           </Button>
+
+          <div className="flex items-center gap-3">
+            <ExternalAIReviewDialog
+              candidateId={candidate.id}
+              candidateName={candidate.fullName}
+            />
+            <Button asChild className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg shadow-primary/20">
+              <a href={`/api/candidates/${candidate.id}/pdf`} download>
+                <Download className="h-4 w-4 mr-2" />
+                Download Candidate Report
+              </a>
+            </Button>
+          </div>
         </div>
 
         {/* Header with Photo */}
         <div className="mb-8">
-          <Card className="p-6">
+          <Card className="p-6 bg-gradient-to-br from-card via-card to-purple-50/20 dark:to-purple-950/10 border-purple-200/30 dark:border-purple-800/20 shadow-xl">
             <div className="flex flex-col md:flex-row gap-6">
-              <Avatar size="lg" className="w-32 h-32">
-                {candidate.photo?.fileUrl ? (
-                  <AvatarImage src={candidate.photo.fileUrl} alt={candidate.fullName} />
-                ) : null}
-                <AvatarFallback className="text-2xl">
-                  {candidate.fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar size="lg" className="w-32 h-32 ring-4 ring-purple-100 dark:ring-purple-900/30">
+                  {candidate.photo?.fileUrl ? (
+                    <AvatarImage src={candidate.photo.fileUrl} alt={candidate.fullName} />
+                  ) : null}
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-purple-600 text-white">
+                    {candidate.fullName.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
 
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h1 className="text-3xl font-bold tracking-tight">{candidate.fullName}</h1>
-                    <p className="text-lg text-muted-foreground mt-1">{candidate.candidateCode}</p>
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary via-purple-600 to-indigo-600 bg-clip-text text-transparent">{candidate.fullName}</h1>
+                    <p className="text-lg text-muted-foreground mt-1 font-mono">{candidate.candidateCode}</p>
                   </div>
-                  <CandidateStatusBadge status={candidate.status} className="text-sm" />
+                  <div className="flex items-center gap-2">
+                    <CandidateStatusBadge status={candidate.status} className="text-sm" />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">

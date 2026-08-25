@@ -55,97 +55,131 @@ export default async function RankingsPage() {
   const positions = await getPositionsWithRankings();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Trophy className="h-8 w-8 text-amber-500" />
-            Candidate Rankings
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            AI-powered candidate evaluation and ranking by position
-          </p>
+    <div className="min-h-screen p-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <Trophy className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-slate-900">
+                AI Rankings
+              </h1>
+              <p className="text-slate-600 text-lg mt-1">
+                AI-powered candidate evaluation and scoring by position
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-5">
           {positions.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center text-muted-foreground">
-                <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No positions found</p>
+            <Card className="bg-white/80 backdrop-blur-sm border-slate-200 shadow-lg">
+              <CardContent className="py-16 text-center">
+                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mx-auto mb-4">
+                  <Trophy className="h-8 w-8 text-slate-400" />
+                </div>
+                <p className="text-slate-600 font-medium">No positions found</p>
               </CardContent>
             </Card>
           ) : (
             positions.map((position) => (
-              <Link key={position.id} href={`/rankings/${position.id}`}>
-                <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
-                  <CardContent className="py-6">
+              <Link key={position.id} href={`/rankings/${position.id}`} className="block group">
+                <Card className="bg-white/80 backdrop-blur-sm border-slate-200 shadow-md shadow-slate-900/5 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 hover:border-indigo-300 overflow-hidden">
+                  {/* Header gradient bar */}
+                  <div className="h-2 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400" />
+
+                  <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{position.title}</h3>
+                        <div className="flex items-center gap-3 mb-4">
+                          <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                            {position.title}
+                          </h3>
                           {position.department && (
-                            <Badge variant="outline">{position.department}</Badge>
+                            <Badge className="bg-slate-100 text-slate-700 border-slate-200 border font-semibold">
+                              {position.department}
+                            </Badge>
                           )}
                           <Badge
-                            variant={
-                              position.status === "OPEN" ? "default" : "secondary"
+                            className={
+                              position.status === "OPEN"
+                                ? "bg-green-100 text-green-700 border-green-200 border font-semibold"
+                                : "bg-slate-100 text-slate-600 border-slate-200 border font-semibold"
                             }
                           >
                             {position.status}
                           </Badge>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                          <div>
-                            <div className="text-xs text-muted-foreground">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                          <div className="space-y-1">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                               Total Candidates
                             </div>
-                            <div className="text-2xl font-bold flex items-center gap-2">
-                              <Users className="h-4 w-4 text-muted-foreground" />
-                              {position._count.candidates}
+                            <div className="flex items-center gap-2">
+                              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+                                <Users className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <div className="text-3xl font-bold text-slate-900">
+                                {position._count.candidates}
+                              </div>
                             </div>
                           </div>
 
-                          <div>
-                            <div className="text-xs text-muted-foreground">
+                          <div className="space-y-1">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                               Evaluated
                             </div>
-                            <div className="text-2xl font-bold flex items-center gap-2">
-                              <Award className="h-4 w-4 text-muted-foreground" />
-                              {position.evaluatedCount}
+                            <div className="flex items-center gap-2">
+                              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                                <Award className="h-5 w-5 text-purple-600" />
+                              </div>
+                              <div className="text-3xl font-bold text-slate-900">
+                                {position.evaluatedCount}
+                              </div>
                             </div>
                           </div>
 
-                          <div>
-                            <div className="text-xs text-muted-foreground">
+                          <div className="space-y-1">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                               Vacancies
                             </div>
-                            <div className="text-2xl font-bold">
+                            <div className="text-3xl font-bold text-slate-900">
                               {position.vacancies}
                             </div>
                           </div>
 
                           {position.topScore !== null && (
-                            <div>
-                              <div className="text-xs text-muted-foreground">
+                            <div className="space-y-1">
+                              <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
                                 Top Score
                               </div>
-                              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                {position.topScore}
+                              <div className="flex items-center gap-2">
+                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center">
+                                  <Trophy className="h-5 w-5 text-amber-600" />
+                                </div>
+                                <div className="text-3xl font-bold text-green-600">
+                                  {position.topScore}
+                                </div>
                               </div>
                             </div>
                           )}
                         </div>
 
                         {position.topCandidate && (
-                          <div className="mt-3 text-sm text-muted-foreground">
-                            Top candidate: <span className="font-medium text-foreground">{position.topCandidate.fullName}</span>
+                          <div className="mt-4 pt-4 border-t border-slate-200">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Trophy className="h-4 w-4 text-amber-500" />
+                              <span className="text-slate-600">Top candidate:</span>
+                              <span className="font-semibold text-slate-900">{position.topCandidate.fullName}</span>
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      <ChevronRight className="h-5 w-5 text-muted-foreground ml-4" />
+                      <ChevronRight className="h-6 w-6 text-slate-400 group-hover:text-indigo-600 transition-colors ml-6 flex-shrink-0" />
                     </div>
                   </CardContent>
                 </Card>
